@@ -1,9 +1,12 @@
+from nltk.stem import RSLPStemmer
+st = RSLPStemmer()
 f = open("train.txt", "r")
 
 emission = {}
 transition = {}
 context = {}
 prev = "S"
+tags = []
 
 for line in f:
 	if prev not in context:
@@ -17,6 +20,8 @@ for line in f:
 	lst = line.split(" ")
 	word = lst[0]
 	tag = lst[1]
+	if tag not in tags:
+		tags.append(tag)
 
 	if (prev, tag) not in transition:
 		transition[prev, tag] = 1
@@ -34,9 +39,3 @@ for line in f:
 		emission[tag, word] = emission[tag, word] + 1
 
 	prev = tag
-
-for k1, k2 in transition:
-	print ("T", k1, k2, ": ", transition[k1, k2]/context[k1])
-
-for k1, k2 in emission:
-	print ("E", k1, k2, ": ", emission[k1, k2]/context[k1])
