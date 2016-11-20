@@ -6,6 +6,7 @@ import json
 
 observation = []
 time = len(observation)
+punctuations = [".", ",", "?", "!"]
 
 def trans(i, j):
 	if (i, j) not in transition:
@@ -27,26 +28,26 @@ def viterbi():
 	for i in tags:
 		t1[(i, 0)] = trans("S", i) * emit(i, observation[0])
 		t2[(i, 0)] = "S"
+		#print ("t1[%s, 0] " % i, t1[i, 0])
 
 	for t in range(1, time):
 		for i in tags:
-			if observation[t][-1] == "." or observation[t][-1] == ",":
+			while observation[t][-1] in punctuations:
 				observation[t] = observation[t][0:-1]
 			t1[i, t] = max([t1[k, t-1] * trans(k, i) * emit(i, observation[t]) for k in tags])
-			t2[i, t] = max(list(list(zip(*t1.keys()))[0]), key=lambda k: t1[k, t-1] * trans(k, i))
+			t2[i, t] = max(list(list(zip(*t1))[0]), key=lambda k: t1[k, t-1] * trans(k, i))
 			#print ("t1[%s, %d]" % (i, t), t1[i, t], " t2[%s, %d]" % (i, t), t2[i, t])
 
 	x[time-1] = max(tags, key=lambda k: t1[k, time-1])
+	#print ("x[time-1]: ", x[time-1])
 
 	for t in range(time-1, 0, -1):
 		x[t-1] = t2[x[t], t]
 
 	ret = ""
 	for k in x.keys():
-		if "JJ" in x[k]:
-			ret = ret + " " + observation[k]
-		elif "VB" in x[k]:
-			ret = ret + " " + observation[k]
+		#if x[k] == "JJ":
+		#	ret = ret + " " + observation[k]
 		print (k, "(%s): " % (observation[k]), x[k])
 
 	return ret
@@ -58,20 +59,8 @@ def observe(text):
 	time = len(observation)
 
 def main():
-	f = open(sys.argv[1], "r")
-	g = open(sys.argv[2], "w")
-	for line in f:
-		j = json.loads(line)
-		observe(j["text"])
-		print ("observation: ", observation)
-		ret = viterbi()
-		print ("ret: ", ret)
-		j["text"] = ret
-		print ("dump: ", json.dumps(j))
-		g.write(json.dumps(j))
-
-	f.close()
-	g.close()
+	observe(sys.argv[1])
+	viterbi()
 
 if __name__ == "__main__":
 	main()
