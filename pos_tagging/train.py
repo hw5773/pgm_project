@@ -10,9 +10,6 @@ tags = []
 
 for line in f:
 	if len(line) <= 1:
-		continue
-
-	elif len(line) < 7:
 		prev = "S"
 		continue
 	else:
