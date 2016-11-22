@@ -43,11 +43,15 @@ def viterbi():
 		x[t-1] = t2[x[t], t]
 
 	ret = ""
+
+	be_verbs = ["am", "'m", "are", "'re", "is", "be", "was", "were"]
+
 	for k in x.keys():
 		if "JJ" in x[k]:
 			ret = ret + " " + observation[k]
-		#elif "VB" in x[k]:
-		#	ret = ret + " " + observation[k]
+		elif "VB" in x[k]:
+			if observation[k] not in be_verbs:
+				ret = ret + " " + observation[k]
 		#print (k, "(%s): " % (observation[k]), x[k])
 
 	return ret, x
